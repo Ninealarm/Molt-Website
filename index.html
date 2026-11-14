@@ -3,106 +3,242 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Molt — 100% Human Art Discovery & Escrow Marketplace</title>
+  <title>Molt — Art Social Network, Shorts & Safe Escrow</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Top Navigation -->
+  <!-- Ambient Background Glows for Smooth Gradient Feel -->
+  <div class="ambient-glow glow-top-left"></div>
+  <div class="ambient-glow glow-bottom-right"></div>
+
+  <!-- Top Navigation Bar -->
   <header class="navbar">
-    <div class="brand">
-      <span class="logo-flame">◆</span>
+    <div class="brand" onclick="switchTab('explore')">
+      <!-- Custom SVG Logo Placeholder (Can be replaced with <img src="logo.png"> later) -->
+      <div class="logo-badge">
+        <svg viewBox="0 0 36 36" width="28" height="28">
+          <defs>
+            <linearGradient id="moltLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ff4e00" />
+              <stop offset="50%" stop-color="#ff8533" />
+              <stop offset="100%" stop-color="#ffb703" />
+            </linearGradient>
+          </defs>
+          <path d="M18 2 C25 10, 32 16, 30 25 C28 31, 23 34, 18 34 C13 34, 8 31, 6 25 C4 16, 11 10, 18 2 Z" fill="url(#moltLogoGrad)" />
+          <path d="M18 11 C21 16, 24 20, 23 25 C22 28, 20 30, 18 30 C16 30, 14 28, 13 25 C12 20, 15 16, 18 11 Z" fill="#0d0f14" />
+        </svg>
+      </div>
       <div>
         <h1>MOLT</h1>
-        <span class="tagline">100% Human Art • Escrow Protected</span>
+        <span class="tagline">Social • Art Shorts • Safe Escrow</span>
       </div>
     </div>
 
-    <div class="search-container">
-      <input
-        type="text"
-        id="searchInput"
-        placeholder="Search visual references, poses, lighting, Warli, anime, charcoal..."
-      />
-      <span class="ai-utility-tag" title="AI is strictly used for search indexing, never art generation">
-        Utility Search Only • Zero Gen-AI
-      </span>
-    </div>
-
-    <div class="nav-controls">
-      <button id="currencyToggle" class="btn-secondary" title="Privacy Wallet: Shows studio handle only">
-        Currency: ₹ INR (UPI/Card)
+    <!-- Main App Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="nav-tab active" data-tab="explore" onclick="switchTab('explore')">
+        🎨 Explore Feed
       </button>
-      <button id="moodboardBtn" class="btn-primary">
-        Moodboard (<span id="savedCount">0</span>)
+      <button class="nav-tab" data-tab="shorts" onclick="switchTab('shorts')">
+        🎬 Art Shorts
+      </button>
+      <button class="nav-tab" data-tab="escrow" onclick="switchTab('escrow')">
+        🛡️ Safe Transfer & Escrow <span id="activeEscrowBadge" class="pill-count">2</span>
+      </button>
+      <button class="nav-tab" data-tab="profile" onclick="switchTab('profile')">
+        👤 Studio Profile
+      </button>
+    </nav>
+
+    <!-- Right Controls: Currency + Google Account -->
+    <div class="nav-controls">
+      <button id="currencyToggle" class="btn-glass">₹ INR</button>
+      <button id="googleAuthBtn" class="btn-google" onclick="handleGoogleSignIn()">
+        <svg width="16" height="16" viewBox="0 0 24 24">
+          <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.8C6.2 7.2 8.9 5 12 5z"/>
+          <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.6l3.7 2.9c2.2-2 3.7-5 3.7-8.7z"/>
+          <path fill="#FBBC05" d="M5.3 14.8c-.2-.8-.4-1.6-.4-2.5s.2-1.7.4-2.5L1.6 7C.6 9 0 11.2 0 13.5s.6 4.5 1.6 6.5l3.7-2.9z"/>
+          <path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.1-6.7-5L1.6 17c1.9 3.9 5.8 7 10.4 7z"/>
+        </svg>
+        <span id="authBtnText">Sign in with Google</span>
       </button>
     </div>
   </header>
 
-  <!-- Protection Banner solving Core & Hidden Problems -->
-  <section class="trust-banner">
-    <div class="trust-pill">🛡️ <strong>3-Stage Escrow Vault:</strong> 30% Sketch • 30% Base • 40% Final</div>
-    <div class="trust-pill">✋ <strong>Proof-of-Craft Verified:</strong> Swipe cards to inspect raw sketches</div>
-    <div class="trust-pill">🚫 <strong>Anti-Scrape Shield:</strong> Metadata stripped & glazed against AI bots</div>
-    <div class="trust-pill">⏱️ <strong>Zero-Clout Boost:</strong> 30% feed reserved for rising human artists</div>
-  </section>
-
-  <!-- 3-Layer Art Filtration System -->
-  <section class="filter-panel">
-    <div class="filter-row">
-      <span class="filter-label">1. Approach:</span>
-      <div class="filter-group" data-filter-type="approach">
-        <button class="filter-chip active" data-value="all">All Approaches</button>
-        <button class="filter-chip" data-value="Traditional">Traditional Art</button>
-        <button class="filter-chip" data-value="Digital">Digital Art</button>
+  <!-- ==================== TAB 1: EXPLORE FEED ==================== -->
+  <section id="tab-explore" class="tab-view active">
+    <div class="search-hero">
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search human art, references, poses, Warli, anime, charcoal, acrylic..."
+      />
+      <div class="hero-pills">
+        <span class="trust-pill">🚫 100% Human Art Verified</span>
+        <span class="trust-pill">🛡️ 30/30/40 Escrow Protected</span>
+        <span class="trust-pill">✨ Utility Search Only</span>
       </div>
     </div>
 
-    <div class="filter-row">
-      <span class="filter-label">2. Art Form:</span>
-      <div class="filter-group" data-filter-type="form">
-        <button class="filter-chip active" data-value="all">All Forms</button>
-        <button class="filter-chip" data-value="Anime">Anime & Manga</button>
-        <button class="filter-chip" data-value="Warli">Warli Folk Art</button>
-        <button class="filter-chip" data-value="Madhubani">Madhubani</button>
-        <button class="filter-chip" data-value="Realism">Realism & Portraits</button>
-        <button class="filter-chip" data-value="Concept">Concept & Illustration</button>
+    <!-- 3-Layer Art Filtration System -->
+    <div class="filter-panel">
+      <div class="filter-row">
+        <span class="filter-label">Approach</span>
+        <div class="filter-group" data-filter-type="approach">
+          <button class="filter-chip active" data-value="all">All</button>
+          <button class="filter-chip" data-value="Traditional">Traditional</button>
+          <button class="filter-chip" data-value="Digital">Digital</button>
+        </div>
+      </div>
+
+      <div class="filter-row">
+        <span class="filter-label">Art Form</span>
+        <div class="filter-group" data-filter-type="form">
+          <button class="filter-chip active" data-value="all">All Forms</button>
+          <button class="filter-chip" data-value="Anime">Anime & Manga</button>
+          <button class="filter-chip" data-value="Warli">Warli Folk</button>
+          <button class="filter-chip" data-value="Madhubani">Madhubani</button>
+          <button class="filter-chip" data-value="Realism">Realism</button>
+          <button class="filter-chip" data-value="Concept">Concept Art</button>
+        </div>
+      </div>
+
+      <div class="filter-row">
+        <span class="filter-label">Medium</span>
+        <div class="filter-group" data-filter-type="medium">
+          <button class="filter-chip active" data-value="all">All Mediums</button>
+          <button class="filter-chip" data-value="Acrylic">Acrylic Paint</button>
+          <button class="filter-chip" data-value="Watercolor">Watercolor</button>
+          <button class="filter-chip" data-value="Alcohol Markers">Alcohol Markers</button>
+          <button class="filter-chip" data-value="Charcoal">Charcoal</button>
+          <button class="filter-chip" data-value="Colored Pencils">Colored Pencils</button>
+          <button class="filter-chip" data-value="Digital Brush">Digital Canvas</button>
+        </div>
       </div>
     </div>
 
-    <div class="filter-row">
-      <span class="filter-label">3. Medium:</span>
-      <div class="filter-group" data-filter-type="medium">
-        <button class="filter-chip active" data-value="all">All Mediums</button>
-        <button class="filter-chip" data-value="Acrylic">Acrylic Paint</button>
-        <button class="filter-chip" data-value="Watercolor">Watercolor Cake/Tube</button>
-        <button class="filter-chip" data-value="Alcohol Markers">Alcohol Markers</button>
-        <button class="filter-chip" data-value="Charcoal">Charcoal & Graphite</button>
-        <button class="filter-chip" data-value="Colored Pencils">Colored Pencils</button>
-        <button class="filter-chip" data-value="Digital Brush">2D Digital Canvas</button>
+    <!-- Staggered Pinterest-Style Masonry Grid -->
+    <div id="artGrid" class="masonry-grid"></div>
+  </section>
+
+  <!-- ==================== TAB 2: ART SHORTS (9:16 VERTICAL) ==================== -->
+  <section id="tab-shorts" class="tab-view hidden">
+    <div class="shorts-wrapper">
+      <div class="shorts-stage" id="shortsContainer">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+
+      <div class="shorts-nav-Clean">
+        <button class="btn-glass" onclick="changeShort(-1)">▲ Previous Short</button>
+        <span id="shortCounter" class="short-counter">1 / 4</span>
+        <button class="btn-gradient" onclick="changeShort(1)">▼ Next Art Short</button>
       </div>
     </div>
   </section>
 
-  <!-- Moodboard-to-Hire Recommendation Bar (Hidden until user saves pins) -->
-  <section id="moodboardBar" class="moodboard-bar hidden">
-    <div>
-      <strong>✨ Moodboard Matchmaker Active:</strong>
-      <span id="moodboardSummary">Save reference pins to match with open artists in that exact style.</span>
+  <!-- ==================== TAB 3: SAFE MONEY TRANSFER & ESCROW ==================== -->
+  <section id="tab-escrow" class="tab-view hidden">
+    <div class="escrow-dashboard">
+      <!-- Wallet Summary Row -->
+      <div class="wallet-cards">
+        <div class="wallet-card highlight-card">
+          <span class="wallet-label">🔒 Locked in Molt Escrow Vault</span>
+          <h2 id="escrowLockedTotal">₹4,200</h2>
+          <p>Protected against chargebacks & ghosting. Unlocks per milestone.</p>
+        </div>
+        <div class="wallet-card">
+          <span class="wallet-label">💳 Withdrawable Studio Balance</span>
+          <h2 id="studioWalletBalance">₹6,850</h2>
+          <div class="wallet-actions">
+            <button class="btn-gradient btn-sm" onclick="withdrawFunds()">Instant Payout (UPI / Bank)</button>
+            <span class="privacy-note">🛡️ Shows Studio Handle Only</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Commission Milestone Contracts -->
+      <div class="contracts-box">
+        <div class="contracts-header">
+          <h3>Active Escrow Commission Contracts</h3>
+          <span class="subtext">Click "Approve & Release Next Stage" to test live milestone money transfer</span>
+        </div>
+        <div id="activeContractsList" class="contracts-list"></div>
+      </div>
     </div>
-    <button id="clearMoodboard" class="btn-text">Clear Board</button>
   </section>
 
-  <!-- Main Artist & Reference Discovery Grid -->
-  <main class="main-container">
-    <div id="artGrid" class="art-grid"></div>
-  </main>
+  <!-- ==================== TAB 4: STUDIO PROFILE & GOOGLE ACCOUNT ==================== -->
+  <section id="tab-profile" class="tab-view hidden">
+    <div class="profile-container">
+      <div class="profile-banner">
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar" id="profileAvatar">A</div>
+          <span class="live-status-ring">Open</span>
+        </div>
+        <div class="profile-info">
+          <div class="profile-name-row">
+            <h2 id="profileDisplayName">Arjun Art Studio</h2>
+            <span class="verified-pill">✓ Human Proof-of-Craft Verified</span>
+          </div>
+          <p id="profileHandle" class="artist-handle">@arjun_visuals • Traditional & Anime Illustrator</p>
+          <p class="profile-bio">
+            Specializing in layered acrylic character portraits, watercolor washes, and dynamic anime keyframe illustrations. All commissions protected by Molt 3-Stage Escrow.
+          </p>
+          <div class="profile-stats">
+            <div><strong>1,420</strong> <span>Followers</span></div>
+            <div><strong>38</strong> <span>Completed Commissions</span></div>
+            <div><strong>100%</strong> <span>On-Time Escrow Rating</span></div>
+          </div>
+        </div>
+        <div class="profile-actions">
+          <button class="btn-gradient" onclick="openUploadModal()">+ Post Art / Short</button>
+        </div>
+      </div>
 
-  <!-- Interactive Escrow & Commercial Licensing Studio Modal -->
+      <!-- Saved Reference Moodboards & Commission Menu -->
+      <div class="profile-grid-two">
+        <div class="glass-box">
+          <h3>📌 Saved Reference Moodboard (<span id="profileSavedCount">0</span>)</h3>
+          <p class="subtext">References you pinned from the Explore feed appear here for pose & palette study.</p>
+          <div id="profileMoodboardList" class="mini-saved-list"></div>
+        </div>
+
+        <div class="glass-box">
+          <h3>⚡ Instant Commission Tiers</h3>
+          <div class="tier-list">
+            <div class="tier-item">
+              <div>
+                <strong>Sketch / Lineart Portrait</strong>
+                <span>2 Free Revisions • High-Res Scan</span>
+              </div>
+              <span class="tier-price">₹900</span>
+            </div>
+            <div class="tier-item">
+              <div>
+                <strong>Full Color Acrylic / Marker Piece</strong>
+                <span>Layered Shading • Digital + Optional Shipping</span>
+              </div>
+              <span class="tier-price">₹1,800</span>
+            </div>
+            <div class="tier-item">
+              <div>
+                <strong>Commercial Brand / Cover Illustration</strong>
+                <span>Includes Full Business PDF Buyout</span>
+              </div>
+              <span class="tier-price">₹4,500</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== MODAL: COMMISSION & ESCROW LOCK ==================== -->
   <div id="commissionModal" class="modal-overlay hidden">
     <div class="modal-card">
       <div class="modal-header">
         <div>
-          <span class="verified-tag">✓ Proof-of-Craft Verified Studio</span>
+          <span class="verified-pill">🛡️ Scam-Proof Escrow Contract</span>
           <h2 id="modalArtistName">Commission Studio</h2>
           <p id="modalArtDetails" class="subtext"></p>
         </div>
@@ -110,96 +246,77 @@
       </div>
 
       <div class="modal-body">
-        <!-- Guided Brief Builder (Solves Vague Client Briefs) -->
         <div class="form-section">
-          <label class="section-title">1. Guided Project Brief (No Vague Guesswork)</label>
+          <label class="section-title">1. Project Brief & Delivery</label>
           <div class="two-col">
             <div>
-              <label class="input-label">Project Category</label>
+              <label class="input-label">Commission Type</label>
               <select id="briefCategory" class="select-input">
-                <option value="Character Portrait">Character / OC Portrait</option>
-                <option value="Brand Mascot / Logo">Business Mascot / Brand Illustration</option>
-                <option value="Book / Album Cover">Book, Album, or Thumbnail Cover</option>
-                <option value="Traditional Wall Piece">Custom Traditional Canvas / Folk Piece</option>
+                <option value="Character Portrait">Character / Anime Portrait</option>
+                <option value="Brand Mascot">Business Mascot / Logo</option>
+                <option value="Folk / Canvas Piece">Traditional Folk / Canvas Piece</option>
+                <option value="Cover Illustration">Book / Album / YouTube Cover</option>
               </select>
             </div>
             <div>
-              <label class="input-label">Delivery Mode</label>
+              <label class="input-label">Delivery Format</label>
               <select id="deliveryMode" class="select-input">
-                <option value="digital">High-Res Color-Calibrated Scan / Digital File</option>
-                <option value="physical">Physical Shipping (+ Courier & Supply Deposit)</option>
+                <option value="digital">Color-Calibrated High-Res Scan / Digital</option>
+                <option value="physical">Physical Courier Shipping (+₹450)</option>
               </select>
             </div>
           </div>
         </div>
 
-        <!-- Commercial Licensing Toggle (Solves Licensing Confusion) -->
         <div class="form-section">
-          <label class="section-title">2. Plain-English Usage & Commercial License</label>
+          <label class="section-title">2. Usage & Commercial Rights</label>
           <div class="license-grid">
             <label class="license-card active" data-multiplier="1">
               <input type="radio" name="license" value="1" checked />
               <strong>Personal Use (Base)</strong>
-              <span>Profile pictures, personal prints, gifts. Non-monetized only.</span>
+              <span>Non-monetized profile pics, room prints, personal gifts.</span>
             </label>
             <label class="license-card" data-multiplier="1.5">
               <input type="radio" name="license" value="1.5" />
               <strong>Small Creator (+50%)</strong>
-              <span>Monetized YouTube/streams, indie books, social promos.</span>
+              <span>Monetized YouTube/streams, indie covers, social channels.</span>
             </label>
             <label class="license-card" data-multiplier="2.5">
               <input type="radio" name="license" value="2.5" />
               <strong>Full Business (+150%)</strong>
-              <span>Merchandise runs, company branding, commercial ads & buyout.</span>
+              <span>Merchandise runs, commercial ads & full brand buyout.</span>
             </label>
           </div>
-          <p id="licenseExplanation" class="license-note">
-            📄 Auto-generates a Personal Use PDF License: Artist retains copyright; buyer gets personal display rights.
-          </p>
         </div>
 
-        <!-- 3-Stage Escrow Vault Breakdown -->
         <div class="form-section escrow-box">
           <div class="escrow-header">
-            <label class="section-title">3. Scam-Proof 3-Stage Escrow Vault</label>
+            <label class="section-title">3. 3-Stage Escrow Split</label>
             <span class="total-badge">Total Locked: <strong id="totalPriceDisplay">₹0</strong></span>
           </div>
-          <p class="escrow-sub">
-            100% of funds lock safely inside Molt Vault before work begins. Previews in chat stay watermarked until final unlock.
-          </p>
-
           <div class="milestone-steps">
             <div class="milestone-item">
               <span class="step-badge">Stage 1 (30%)</span>
-              <strong>Sketch & Composition</strong>
+              <strong>Sketch Approval</strong>
               <span id="stage1Price" class="stage-amount">₹0</span>
-              <small>Includes 2 free revisions</small>
             </div>
             <div class="milestone-item">
               <span class="step-badge">Stage 2 (30%)</span>
-              <strong>Lineart / Base Paint</strong>
+              <strong>Base / Lineart</strong>
               <span id="stage2Price" class="stage-amount">₹0</span>
-              <small>Includes 1 free color tweak</small>
             </div>
             <div class="milestone-item">
               <span class="step-badge">Stage 3 (40%)</span>
-              <strong>Final Render & Unwatermarked File</strong>
+              <strong>Final Unwatermarked</strong>
               <span id="stage3Price" class="stage-amount">₹0</span>
-              <small>Unlocks High-Res + License PDF</small>
             </div>
-          </div>
-
-          <div class="protection-rules">
-            <span>✓ <strong>Revision Cap:</strong> Extra revisions beyond limit auto-prompt a micro-topup.</span>
-            <span>✓ <strong>7-Day Anti-Ghosting Timer:</strong> If client vanishes for 7 days after milestone upload, stage funds release to artist automatically.</span>
-            <span>✓ <strong>Privacy Shield:</strong> Invoice shows studio handle only—never personal home address or legal name.</span>
           </div>
         </div>
       </div>
 
       <div class="modal-footer">
-        <button id="confirmEscrowBtn" class="btn-primary btn-large">
-          Lock Funds in Molt Escrow & Send Brief
+        <button id="confirmEscrowBtn" class="btn-gradient btn-large">
+          Lock Funds in Molt Escrow & Start Contract
         </button>
       </div>
     </div>
